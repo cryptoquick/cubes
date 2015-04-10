@@ -1,11 +1,11 @@
-Cubes = function (canvasNode, scale) {
+Cubes = function (canvasNode, config) {
   this.Shape = Isomer.Shape;
   this.Point = Isomer.Point;
   this.Color = Isomer.Color;
 
-  this.gridSizeX = new ReactiveVar(32);
-  this.gridSizeY = new ReactiveVar(32);
-  this.gridSizeZ = new ReactiveVar(32);
+  this.gridSizeX = new ReactiveVar(config.x || 32);
+  this.gridSizeY = new ReactiveVar(config.y || 32);
+  this.gridSizeZ = new ReactiveVar(config.z || 32);
 
   this.sliceX = new ReactiveVar(0);
   this.sliceY = new ReactiveVar(0);
@@ -26,8 +26,8 @@ Cubes = function (canvasNode, scale) {
   this.renderQueue = [];
 
   this.iso = new Isomer(canvasNode, {
-    scale: (scale || 10.0),
-    // originY:
+    scale: (config.scale || 10.0),
+    originY: canvasNode.height / 2 // TODO: Solve for scene height
   });
 
   this.planeXY = true;
@@ -66,10 +66,10 @@ Cubes.prototype.renderScene = function () {
   if (this.planeXY) {
     this.iso.add(
       this.Shape.Prism(
-        new this.Point(0, 0, -sliceZ),
+        new this.Point(0, 0, -1),
         gridX,
         gridY,
-        0.1
+        1
       ),
       new this.Color(200, 200, 200),
       true
@@ -97,5 +97,6 @@ Cubes.prototype.renderScene = function () {
 Cubes.prototype.insert = function (cube) {
   var len = this.renderQueue.length;
   this.renderQueue.push(len); // TODO
+  this.sceneTrees[0];
   this.sceneData[len] = cube;
 }
