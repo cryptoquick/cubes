@@ -22,7 +22,7 @@ Template.occlusion.onRendered(function () {
   var count = this.cubes.renderScene()
 
   Tinytest.add('example', function (test) {
-    test.equal(count, 512);
+    test.equal(count, 8 * 8 + 8 * 7 + 7 * 7);
   });
 
   var end = +new Date;
