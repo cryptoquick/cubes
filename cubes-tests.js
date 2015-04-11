@@ -1,4 +1,4 @@
-var cubeSize = 6;
+var cubeSize = 32;
 
 Template.occlusion.onRendered(function () {
   var start = +new Date;

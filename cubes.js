@@ -31,7 +31,7 @@ Cubes = function (canvasNode, config) {
 
   this.iso = new Isomer(canvasNode, {
     scale: (config.scale || 10.0),
-    originY: canvasNode.height / 2 // TODO: Solve for scene height
+    originY: (config.originY || this.gridSizeZ * 2 * 10)
   });
 
   this.planeXY = config.planeXY || true;
@@ -85,32 +85,17 @@ Cubes.prototype.renderScene = function () {
     );
   }
 
-  console.log(this.sceneData[0], Object.keys(this.sceneData[0]).length, this._adds);
-
   renderQueue = [];
 
-  // Depth-first search
+  // Breadth-first search
   var ts = +new Date;
   var stack = [this._index(gridX - 1, gridY - 1, 0)];
-  // var stack = [this._index(0, 0, gridZ - 1)];
-
-  // var stack = [this._index(0, gridY - 1, gridZ - 1)]; //
-  // var stack = [this._index(gridX - 1, 0, gridZ - 1)];
-  // var stack = [this._index(gridX - 1, gridY - 1, gridZ - 1)];
-
-  // var stack = [this._index(0, gridY - 1, 0)];
-  // var stack = [this._index(gridX - 1, 0, 0)];
-  // var stack = [this._index(gridX - 1, gridY - 1, 0)];
-  // var stack = [this._index(0, 0, 0)];
 
   var arr = null;
   var index = null;
-  var beaps = 0; // TODO remove
   while (stack.length) {
     index = stack.shift();
     arr = this.sceneData[0][index];
-
-    console.log(arr); // TODO remove
 
     if (arr && arr[0].ts !== ts) {
 
@@ -122,76 +107,27 @@ Cubes.prototype.renderScene = function () {
       if (arr[3] >= 0) len++;
 
       if (len === 3 || len === 2 || len === 1) renderQueue.push(arr[0]);
-      // renderQueue.push(arr[0]);
-
 
       this.sceneData[0][index][0].ts = ts;
-      // for (var i = 1, ii = arr.length; i < ii; i++) {
-      // var order = [1, 2, 3];
-      // for (var i = 0, ii = order.length; i > ii; i--) {
-      //   stack.push(arr[i]);
-      // }
 
-      var t = 0;
-
-      if (t === 0) {
-        if (arr[1]) stack.push(arr[1]);
-        if (arr[2]) stack.push(arr[2]);
-        if (arr[3]) stack.push(arr[3]);
-      }
-
-      if (t === 1) {
-        if (arr[3]) stack.push(arr[3]);
-        if (arr[2]) stack.push(arr[2]);
-        if (arr[1]) stack.push(arr[1]);
-      }
-
-      if (t === 2) {
-        if (arr[2]) stack.push(arr[2]);
-        if (arr[3]) stack.push(arr[3]);
-        if (arr[1]) stack.push(arr[1]);
-      }
-
-      if (t === 3) {
-        if (arr[1]) stack.push(arr[1]);
-        if (arr[3]) stack.push(arr[3]);
-        if (arr[2]) stack.push(arr[2]);
-      }
-
-      if (t === 4) {
-        if (arr[3]) stack.push(arr[3]);
-        if (arr[1]) stack.push(arr[1]);
-        if (arr[2]) stack.push(arr[2]);
-      }
-
-      if (t === 5) {
-        if (arr[2]) stack.push(arr[2]);
-        if (arr[1]) stack.push(arr[1]);
-        if (arr[3]) stack.push(arr[3]);
-      }
-
-    }
-    else {
-      if (arr === undefined) beaps++; // TODO remove
+      if (arr[1]) stack.push(arr[1]);
+      if (arr[2]) stack.push(arr[2]);
+      if (arr[3]) stack.push(arr[3]);
     }
   }
-
-  console.log(beaps); // TODO remove
 
   // Render cubes in queue
   var cube = null;
   for (var j = 0, jj = renderQueue.length; j < jj; j++) {
     var that = this;
-    setTimeout(function (jn) {
-      cube = renderQueue[jn];
-      that.iso.add(
-        that.Shape.Prism(
-          new that.Point(cube.x, cube.y, cube.z)
-        ),
-        that.isoColor(cube.color)
-        // , true
-      );
-    }, j * 100, j);
+    cube = renderQueue[j];
+    that.iso.add(
+      that.Shape.Prism(
+        new that.Point(cube.x, cube.y, cube.z)
+      ),
+      that.isoColor(cube.color)
+      // , true
+    );
   }
 
   // For next-generation Isomer.
@@ -218,28 +154,13 @@ Cubes.prototype._addNode = function (parent, i, x, y, z) {
   var index = this._index(x, y, z);
   this.sceneData[0][index] = this.sceneData[0][index] || [null];
   this.sceneData[0][index][i] = parent;
-
-  // if (this.sceneData[0][index].indexOf(parent) === -1) {
-  //   this.sceneData[0][index].push(parent);
-  // }
 }
 
 Cubes.prototype._newTree = function () {
-  // var gridX = 0;
-  // var gridY = 0;
-  // var gridZ = this.gridSizeZ;
-  //
-  // var x = this.gridSizeX;
-  // var y = this.gridSizeY;
-  // var z = 0;
-
   // Add additional nodes to scene tree
   var index = null;
 
   for (var z = 0, zz = this.gridSizeZ; z < zz; z++) {
-  // for (var z = this.gridSizeZ - 1, zz = 0; z >= zz; z--) {
-    // for (var y = 0, yy = this.gridSizeY; y < yy; y++) {
-      // for (var x = 0, xx = this.gridSizeX; x < xx; x++) {
     for (var y = this.gridSizeY - 1, yy = 0; y >= yy; y--) {
       for (var x = this.gridSizeX - 1, xx = 0; x >= xx; x--) {
         index = this._index(x, y, z);
