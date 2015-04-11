@@ -89,12 +89,12 @@ Cubes.prototype.renderScene = function () {
 
   // Breadth-first search
   var ts = +new Date;
-  var stack = [this._index(gridX - 1, gridY - 1, 0)];
+  var queue = [this._index(gridX - 1, gridY - 1, 0)];
 
   var arr = null;
   var index = null;
-  while (stack.length) {
-    index = stack.shift();
+  while (queue.length) {
+    index = queue.shift();
     arr = this.sceneData[0][index];
 
     if (arr && arr[0].ts !== ts) {
@@ -110,22 +110,21 @@ Cubes.prototype.renderScene = function () {
 
       this.sceneData[0][index][0].ts = ts;
 
-      if (arr[1]) stack.push(arr[1]);
-      if (arr[2]) stack.push(arr[2]);
-      if (arr[3]) stack.push(arr[3]);
+      if (arr[1]) queue.push(arr[1]);
+      if (arr[2]) queue.push(arr[2]);
+      if (arr[3]) queue.push(arr[3]);
     }
   }
 
   // Render cubes in queue
   var cube = null;
   for (var j = 0, jj = renderQueue.length; j < jj; j++) {
-    var that = this;
     cube = renderQueue[j];
-    that.iso.add(
-      that.Shape.Prism(
-        new that.Point(cube.x, cube.y, cube.z)
+    this.iso.add(
+      this.Shape.Prism(
+        new this.Point(cube.x, cube.y, cube.z)
       ),
-      that.isoColor(cube.color)
+      cube.color ? this.isoColor(cube.color) : null
       // , true
     );
   }
@@ -139,7 +138,7 @@ Cubes.prototype.renderScene = function () {
 
 Cubes.prototype.insert = function (cube) {
   var index = this._index(cube.x, cube.y, cube.z);
-  this.sceneData[0][index] = this.sceneData[0][index] || [];
+  this.sceneData[0][index] = this.sceneData[0][index] || [{ts: 0}];
   this.sceneData[0][index][0] = cube;
   this.sceneData[0].count++;
 }
@@ -152,7 +151,7 @@ Cubes.prototype._index = function (x, y, z) {
 Cubes.prototype._addNode = function (parent, i, x, y, z) {
   this._adds++;
   var index = this._index(x, y, z);
-  this.sceneData[0][index] = this.sceneData[0][index] || [null];
+  this.sceneData[0][index] = this.sceneData[0][index] || [{ts: 0}];
   this.sceneData[0][index][i] = parent;
 }
 
