@@ -3,15 +3,15 @@ Cubes = function (canvasNode, config) {
   this.Point = Isomer.Point;
   this.Color = Isomer.Color;
 
-  this.gridSizeX = new ReactiveVar(config.x || 32);
-  this.gridSizeY = new ReactiveVar(config.y || 32);
-  this.gridSizeZ = new ReactiveVar(config.z || 32);
+  this.gridSizeX = config.x || 32;
+  this.gridSizeY = config.y || 32;
+  this.gridSizeZ = config.z || 32;
 
-  this.sliceX = new ReactiveVar(0);
-  this.sliceY = new ReactiveVar(0);
-  this.sliceZ = new ReactiveVar(0);
+  this.sliceX = 0;
+  this.sliceY = 0;
+  this.sliceZ = 0;
 
-  this.rotationIndex = new ReactiveVar(0);
+  this.rotationIndex = 0;
 
   // Four trees, indexed from different directions
   this.sceneData = [
@@ -37,6 +37,8 @@ Cubes = function (canvasNode, config) {
   this.planeXY = config.planeXY || true;
 
   this._adds = 0;
+
+  this._newTree();
 };
 
 Cubes.prototype.hexToRgb = function (hex) {
@@ -63,9 +65,10 @@ Cubes.prototype.randomColor = function () {
 }
 
 Cubes.prototype.renderScene = function () {
-  var sliceZ = this.sliceZ.get();
-  var gridX = this.gridSizeX.get();
-  var gridY = this.gridSizeY.get();
+  var sliceZ = this.sliceZ;
+  var gridX = this.gridSizeX;
+  var gridY = this.gridSizeY;
+  var gridZ = this.gridSizeZ;
 
   this.iso.scene = [];
 
@@ -84,45 +87,111 @@ Cubes.prototype.renderScene = function () {
 
   console.log(this.sceneData[0], Object.keys(this.sceneData[0]).length, this._adds);
 
-  var renderQueue = [];
+  renderQueue = [];
 
   // Depth-first search
   var ts = +new Date;
   var stack = [this._index(gridX - 1, gridY - 1, 0)];
+  // var stack = [this._index(0, 0, gridZ - 1)];
+
+  // var stack = [this._index(0, gridY - 1, gridZ - 1)]; //
+  // var stack = [this._index(gridX - 1, 0, gridZ - 1)];
+  // var stack = [this._index(gridX - 1, gridY - 1, gridZ - 1)];
+
+  // var stack = [this._index(0, gridY - 1, 0)];
+  // var stack = [this._index(gridX - 1, 0, 0)];
+  // var stack = [this._index(gridX - 1, gridY - 1, 0)];
+  // var stack = [this._index(0, 0, 0)];
+
   var arr = null;
   var index = null;
-var beaps = 0;
+  var beaps = 0; // TODO remove
   while (stack.length) {
-    index = stack.pop();
+    index = stack.shift();
     arr = this.sceneData[0][index];
 
-    // console.log(arr);
+    console.log(arr); // TODO remove
 
     if (arr && arr[0].ts !== ts) {
-      renderQueue.push(arr[0]);
+
+      var len = 0;
+
+      if (arr[0]) len++;
+      if (arr[1] >= 0) len++;
+      if (arr[2] >= 0) len++;
+      if (arr[3] >= 0) len++;
+
+      if (len === 3 || len === 2 || len === 1) renderQueue.push(arr[0]);
+      // renderQueue.push(arr[0]);
+
+
       this.sceneData[0][index][0].ts = ts;
-      for (var i = 1, ii = arr.length; i < ii; i++) {
-        stack.push(arr[i]);
+      // for (var i = 1, ii = arr.length; i < ii; i++) {
+      // var order = [1, 2, 3];
+      // for (var i = 0, ii = order.length; i > ii; i--) {
+      //   stack.push(arr[i]);
+      // }
+
+      var t = 0;
+
+      if (t === 0) {
+        if (arr[1]) stack.push(arr[1]);
+        if (arr[2]) stack.push(arr[2]);
+        if (arr[3]) stack.push(arr[3]);
       }
+
+      if (t === 1) {
+        if (arr[3]) stack.push(arr[3]);
+        if (arr[2]) stack.push(arr[2]);
+        if (arr[1]) stack.push(arr[1]);
+      }
+
+      if (t === 2) {
+        if (arr[2]) stack.push(arr[2]);
+        if (arr[3]) stack.push(arr[3]);
+        if (arr[1]) stack.push(arr[1]);
+      }
+
+      if (t === 3) {
+        if (arr[1]) stack.push(arr[1]);
+        if (arr[3]) stack.push(arr[3]);
+        if (arr[2]) stack.push(arr[2]);
+      }
+
+      if (t === 4) {
+        if (arr[3]) stack.push(arr[3]);
+        if (arr[1]) stack.push(arr[1]);
+        if (arr[2]) stack.push(arr[2]);
+      }
+
+      if (t === 5) {
+        if (arr[2]) stack.push(arr[2]);
+        if (arr[1]) stack.push(arr[1]);
+        if (arr[3]) stack.push(arr[3]);
+      }
+
     }
     else {
-      if (arr === undefined) beaps++;
+      if (arr === undefined) beaps++; // TODO remove
     }
   }
 
-  console.log(beaps);
+  console.log(beaps); // TODO remove
 
   // Render cubes in queue
   var cube = null;
   for (var j = 0, jj = renderQueue.length; j < jj; j++) {
-    cube = renderQueue[j];
-    this.iso.add(
-      this.Shape.Prism(
-        new this.Point(cube.x, cube.y, cube.z)
-      ),
-      this.isoColor(cube.color)
-      // , true
-    );
+    var that = this;
+    setTimeout(function (jn) {
+      cube = renderQueue[jn];
+      that.iso.add(
+        that.Shape.Prism(
+          new that.Point(cube.x, cube.y, cube.z)
+        ),
+        that.isoColor(cube.color)
+        // , true
+      );
+    }, j * 100, j);
   }
 
   // For next-generation Isomer.
@@ -133,34 +202,15 @@ var beaps = 0;
 }
 
 Cubes.prototype.insert = function (cube) {
-  var gridX = this.gridSizeX.get();
-  var gridY = this.gridSizeY.get();
-  var gridZ = 0;
-
-  var x = cube.x;
-  var y = cube.y;
-  var z = cube.z;
-
-  // Add data to scene
   var index = this._index(cube.x, cube.y, cube.z);
   this.sceneData[0][index] = this.sceneData[0][index] || [];
   this.sceneData[0][index][0] = cube;
   this.sceneData[0].count++;
-
-  // Add additional nodes to scene tree.
-  while (x < gridX && y < gridY && z >= gridZ) {
-    if (x < gridX) this._addNode(index, 1, x + 1, y, z);
-    if (y < gridY) this._addNode(index, 2, x, y + 1, z);
-    if (z - 1 >= gridZ) this._addNode(index, 3, x, y, z - 1);
-    x++;
-    y++;
-    z--;
-  }
 }
 
 // Private Methods
 Cubes.prototype._index = function (x, y, z) {
-  return this.gridSizeZ.get() * this.gridSizeZ.get() * z + this.gridSizeY.get() * y + x;
+  return this.gridSizeZ * this.gridSizeZ * z + this.gridSizeY * y + x + 1;
 }
 
 Cubes.prototype._addNode = function (parent, i, x, y, z) {
@@ -172,4 +222,31 @@ Cubes.prototype._addNode = function (parent, i, x, y, z) {
   // if (this.sceneData[0][index].indexOf(parent) === -1) {
   //   this.sceneData[0][index].push(parent);
   // }
+}
+
+Cubes.prototype._newTree = function () {
+  // var gridX = 0;
+  // var gridY = 0;
+  // var gridZ = this.gridSizeZ;
+  //
+  // var x = this.gridSizeX;
+  // var y = this.gridSizeY;
+  // var z = 0;
+
+  // Add additional nodes to scene tree
+  var index = null;
+
+  for (var z = 0, zz = this.gridSizeZ; z < zz; z++) {
+  // for (var z = this.gridSizeZ - 1, zz = 0; z >= zz; z--) {
+    // for (var y = 0, yy = this.gridSizeY; y < yy; y++) {
+      // for (var x = 0, xx = this.gridSizeX; x < xx; x++) {
+    for (var y = this.gridSizeY - 1, yy = 0; y >= yy; y--) {
+      for (var x = this.gridSizeX - 1, xx = 0; x >= xx; x--) {
+        index = this._index(x, y, z);
+        if (x + 1 < this.gridSizeX) this._addNode(index, 1, x + 1, y, z);
+        if (y + 1 < this.gridSizeY) this._addNode(index, 2, x, y + 1, z);
+        if (z - 1 >= 0) this._addNode(index, 3, x, y, z - 1);
+      }
+    }
+  }
 }
