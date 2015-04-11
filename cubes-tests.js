@@ -1,14 +1,16 @@
+var cubeSize = 6;
+
 Template.occlusion.onRendered(function () {
   var start = +new Date;
   this.cubes = new Cubes(this.find('canvas'), {
-    x: 8,
-    y: 8,
-    z: 8
+    x: cubeSize,
+    y: cubeSize,
+    z: cubeSize
   });
 
-  for (var z = 0, zz = 8; z < zz; z++) {
-    for (var y = 0, yy = 8; y < yy; y++) {
-      for (var x = 0, xx = 8; x < xx; x++) {
+  for (var z = 0, zz = cubeSize; z < zz; z++) {
+    for (var y = 0, yy = cubeSize; y < yy; y++) {
+      for (var x = 0, xx = cubeSize; x < xx; x++) {
         this.cubes.insert({
           x: x,
           y: y,
@@ -22,7 +24,7 @@ Template.occlusion.onRendered(function () {
   var count = this.cubes.renderScene()
 
   Tinytest.add('example', function (test) {
-    test.equal(count, 8 * 8 + 8 * 7 + 7 * 7);
+    test.equal(count, cubeSize * cubeSize + cubeSize * (cubeSize - 1) + (cubeSize - 1) * (cubeSize - 1));
   });
 
   var end = +new Date;
