@@ -1,7 +1,15 @@
 Cubes = function (canvasNode, config) {
-  this.Shape = Isomer.Shape;
-  this.Point = Isomer.Point;
-  this.Color = Isomer.Color;
+  if (typeof module !== 'undefined' && module.exports) {
+    this.commonJS = true;
+    this.Isomer = require('isomer');
+  }
+  else {
+    this.Isomer = Isomer;
+  }
+
+  this.Shape = this.Isomer.Shape;
+  this.Point = this.Isomer.Point;
+  this.Color = this.Isomer.Color;
 
   this.gridSizeX = config.x || 32;
   this.gridSizeY = config.y || 32;
@@ -29,7 +37,7 @@ Cubes = function (canvasNode, config) {
     }  // 270
   ];
 
-  this.iso = new Isomer(canvasNode, {
+  this.iso = new this.Isomer(canvasNode, {
     scale: (config.scale || 10.0),
     originY: (config.originY || this.gridSizeZ * 2 * 10)
   });
@@ -178,4 +186,8 @@ Cubes.prototype._newTree = function () {
       }
     }
   }
+}
+
+if (Cubes.commonJS) {
+  module.exports = Cubes;
 }

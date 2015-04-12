@@ -26,3 +26,5 @@ It's used primarily for Meteor, but it's also designed as a standalone NPM packa
 ## Usage
 
 This package is still under heavy development. Contributions welcome.
+
+If used without Meteor or Browserify, be sure to include Isomer, as a dependency.

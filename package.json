@@ -1,6 +1,6 @@
 {
   "name": "cubes",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "An isometric graphics management library.",
   "main": "cubes.js",
   "scripts": {
@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/cryptoquick/cubes/issues"
   },
-  "homepage": "https://github.com/cryptoquick/cubes"
+  "homepage": "https://github.com/cryptoquick/cubes",
+  "dependencies": {
+    "isomer": "^0.2.5"
+  }
 }
