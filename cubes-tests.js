@@ -5,7 +5,8 @@ Template.occlusion.onRendered(function () {
   this.cubes = new Cubes(this.find('canvas'), {
     x: cubeSize,
     y: cubeSize,
-    z: cubeSize
+    z: cubeSize,
+    slow: 10
   });
 
   for (var z = 0, zz = cubeSize; z < zz; z++) {

@@ -20,6 +20,7 @@ Cubes = function (canvasNode, config) {
   this.sliceZ = 0;
 
   this.rotationIndex = 0;
+  this.slow = config.slow || 0;
 
   // Four trees, indexed from different directions
   this.sceneData = [
@@ -129,8 +130,13 @@ Cubes.prototype.renderScene = function () {
     }
   }
 
-  // Render cubes in queue
-  setTimeout(this.render, 0, this, renderQueue);
+  // Render cubes in queue, non-blocking
+  if (this.slow) {
+    this.slowRender(renderQueue, this.slow);
+  }
+  else {
+    this.render(renderQueue);
+  }
 
   // For next-generation Isomer.
   // this.iso.canvas.clear();
@@ -139,17 +145,35 @@ Cubes.prototype.renderScene = function () {
   return renderQueue.length;
 }
 
-Cubes.prototype.render = function (that, rq) {
+Cubes.prototype.render = function (rq) {
+  setTimeout(function (that, rq) {
+    var cube = null;
+    for (var j = 0, jj = rq.length; j < jj; j++) {
+      cube = rq[j];
+      that.iso.add(
+        that.Shape.Prism(
+          new that.Point(cube.x, cube.y, cube.z)
+        ),
+        cube.color ? that.isoColor(cube.color) : null
+        // , true
+      );
+    }
+  }, 0, this, rq);
+}
+
+Cubes.prototype.slowRender = function (rq, speed) {
   var cube = null;
   for (var j = 0, jj = rq.length; j < jj; j++) {
-    cube = rq[j];
-    that.iso.add(
-      that.Shape.Prism(
-        new that.Point(cube.x, cube.y, cube.z)
-      ),
-      cube.color ? that.isoColor(cube.color) : null
-      // , true
-    );
+    setTimeout(function (that, rq, j) {
+      cube = rq[j];
+      that.iso.add(
+        that.Shape.Prism(
+          new that.Point(cube.x, cube.y, cube.z)
+        ),
+        cube.color ? that.isoColor(cube.color) : null
+        // , true
+      );
+    }, j * speed, this, rq, j);
   }
 }
 
