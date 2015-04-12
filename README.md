@@ -1,6 +1,8 @@
 # Cubes
 
-An isometric graphics-rendering package for Meteor. It uses [Isomer](https://github.com/jdan/isomer), but it uses only cube primitives.
+Cubes is an isometric graphics management library. It uses [Isomer](https://github.com/jdan/isomer), but it's meant to offer higher level scene management.
+
+It's used primarily for Meteor, but it's also designed as a standalone NPM package.
 
 ## Roadmap
 
@@ -20,3 +22,7 @@ An isometric graphics-rendering package for Meteor. It uses [Isomer](https://git
   - 4-angle rotation
 - 0.4
   - Backend rendering
+
+## Usage
+
+This package is still under heavy development. Contributions welcome.

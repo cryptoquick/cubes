@@ -24,4 +24,5 @@ models = [
 	},
 	{
 		model: example5
-	}];
+	}
+];

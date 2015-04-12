@@ -89,7 +89,7 @@ Cubes.prototype.renderScene = function () {
     );
   }
 
-  renderQueue = [];
+  var renderQueue = [];
 
   // Breadth-first search
   var ts = +new Date;
@@ -110,6 +110,7 @@ Cubes.prototype.renderScene = function () {
       if (arr[2] >= 0) len++;
       if (arr[3] >= 0) len++;
 
+      // renderQueue.push(arr[0]);
       if (len === 3 || len === 2 || len === 1) renderQueue.push(arr[0]);
 
       this.sceneData[0][index][0].ts = ts;
@@ -121,23 +122,27 @@ Cubes.prototype.renderScene = function () {
   }
 
   // Render cubes in queue
-  var cube = null;
-  for (var j = 0, jj = renderQueue.length; j < jj; j++) {
-    cube = renderQueue[j];
-    this.iso.add(
-      this.Shape.Prism(
-        new this.Point(cube.x, cube.y, cube.z)
-      ),
-      cube.color ? this.isoColor(cube.color) : null
-      // , true
-    );
-  }
+  setTimeout(this.render, 0, this, renderQueue);
 
   // For next-generation Isomer.
   // this.iso.canvas.clear();
   // this.iso.draw();
 
-  return jj;
+  return renderQueue.length;
+}
+
+Cubes.prototype.render = function (that, rq) {
+  var cube = null;
+  for (var j = 0, jj = rq.length; j < jj; j++) {
+    cube = rq[j];
+    that.iso.add(
+      that.Shape.Prism(
+        new that.Point(cube.x, cube.y, cube.z)
+      ),
+      cube.color ? that.isoColor(cube.color) : null
+      // , true
+    );
+  }
 }
 
 Cubes.prototype.insert = function (cube) {
