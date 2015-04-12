@@ -63,3 +63,61 @@ Template.reverse.onRendered(function () {
 
   console.log(count, 'cubes rendered in', end - start, 'ms');
 });
+
+var swatch = [];
+var current = 0;
+
+// The following implements a great deal of legacy code from nb07 in order to create a color swatch to match color indices from model strings.
+for (var z = 0; z < 32; z++) {
+  for (var y = 0; y < 32; y++) {
+    for (var x = 0; x < 32; x++) {
+      color = {
+        r: (z + 1) * 8,
+        g: (y + 1) * 8,
+        b: (x + 1) * 8
+      };
+
+      swatch.push(color);
+    }
+  }
+}
+
+Template.models.helpers({
+  models: function () {
+    return models;
+  }
+});
+
+Template.model.onRendered(function () {
+  var model = JSON.parse(this.data.model);
+
+  var start = +new Date;
+  var cubes = new Cubes(this.find('canvas'), {
+    x: cubeSize,
+    y: cubeSize,
+    z: cubeSize
+  });
+
+  for (var i = 0, ii = model.length; i < ii; i++) {
+    var cube = model[i];
+    var color = swatch[cube[3]];
+    cubes.insert({
+      x: cube[0],
+      y: cube[1],
+      z: cube[2],
+      color: cubes.rgbToHex(color.r, color.g, color.b)
+    });
+  }
+
+  var count = cubes.renderScene()
+
+  // Tinytest.add('occlusion', function (test) {
+  //   test.equal(count, cubeSize * cubeSize + cubeSize * (cubeSize - 1) + (cubeSize - 1) * (cubeSize - 1));
+  // });
+
+  var end = +new Date;
+
+  console.log(count, 'cubes rendered in', end - start, 'ms');
+
+  return '';
+});

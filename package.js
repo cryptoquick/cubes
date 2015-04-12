@@ -23,5 +23,6 @@ Package.onTest(function(api) {
   api.use('cryptoquick:cubes');
 
   api.addFiles('cubes-tests.html', 'client');
+  api.addFiles('cubes-tests-models.js', 'client');
   api.addFiles('cubes-tests.js', 'client');
 });
