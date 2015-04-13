@@ -22,23 +22,11 @@ Cubes = function (canvasNode, config) {
   this.rotationIndex = 0;
   this.slow = config.slow || 0;
 
-  // Four trees, indexed from different directions
-  this.sceneData = [
-    {
-      count: 0
-    }, // 0
-    {
-      count: 0
-    }, // 90
-    {
-      count: 0
-    }, // 180
-    {
-      count: 0
-    }  // 270
-  ];
-
-  this.diagonals = [];
+  this.sceneData = [];
+  this.sceneDataLength = 0;
+  this.faceIndices = {};
+  this.faceDistances = {};
+  this.renderData = [];
 
   this.iso = new this.Isomer(canvasNode, {
     scale: (config.scale || 10.0),
@@ -48,8 +36,6 @@ Cubes = function (canvasNode, config) {
   this.planeXY = config.planeXY || true;
 
   this._adds = 0;
-
-  this._newTree();
 };
 
 Cubes.prototype.hexToRgb = function (hex) {
@@ -85,7 +71,7 @@ Cubes.prototype.renderScene = function () {
   var gridY = this.gridSizeY;
   var gridZ = this.gridSizeZ;
 
-  this.iso.scene = [];
+  // this.iso.scene = [];
 
   if (this.planeXY) {
     this.iso.add(
@@ -102,35 +88,14 @@ Cubes.prototype.renderScene = function () {
 
   var renderQueue = [];
 
-  // Breadth-first search
-  var ts = +new Date;
-  var queue = [this._index(gridX - 1, gridY - 1, 0)];
-
-  var arr = null;
-  var index = null;
-  while (queue.length) {
-    index = queue.shift();
-    arr = this.sceneData[0][index];
-
-    if (arr && arr[0].ts !== ts) {
-
-      var len = 0;
-
-      if (arr[0]) len++;
-      if (arr[1] >= 0) len++;
-      if (arr[2] >= 0) len++;
-      if (arr[3] >= 0) len++;
-
-      // renderQueue.push(arr[0]);
-      if (len === 3 || len === 2 || len === 1) renderQueue.push(arr[0]);
-
-      this.sceneData[0][index][0].ts = ts;
-
-      if (arr[1]) queue.push(arr[1]);
-      if (arr[2]) queue.push(arr[2]);
-      if (arr[3]) queue.push(arr[3]);
-    }
+  // Pull only front-facing cubes from faceIndices
+  for (var i = 0, ii = this.renderData.length; i < ii; i++) {
+    var rd = this.renderData[i];
+    renderQueue.push(this.sceneData[this.faceIndices[rd.index]]);
   }
+
+  // Sort cubes so they render in the right order
+  renderQueue.sort(this._cubeSorter);
 
   // Render cubes in queue, non-blocking
   if (this.slow) {
@@ -145,6 +110,16 @@ Cubes.prototype.renderScene = function () {
   // this.iso.draw();
 
   return renderQueue.length;
+}
+
+Cubes.prototype._cubeSorter = function (a, b) {
+  if (a.x > b.x) return -1;
+  if (a.x < b.x) return 1;
+  if (a.y > b.y) return -1;
+  if (a.y < b.y) return 1;
+  if (a.z < b.z) return -1;
+  if (a.z > b.z) return 1;
+  return 0;
 }
 
 Cubes.prototype.render = function (rq) {
@@ -180,45 +155,39 @@ Cubes.prototype.slowRender = function (rq, speed) {
 }
 
 Cubes.prototype.insert = function (cube) {
+  var dist = Math.min(cube.x, cube.y, this.gridSizeZ - cube.z);
+
+  var fx = cube.x - dist;
+  var fy = cube.y - dist;
+  var fz = this.gridSizeZ - cube.z - dist;
+
+  var faceIndex = this._index(fx, fy, fz);
+
+  if (!this.faceIndices[faceIndex]) {
+    this.faceDistances[faceIndex] = Infinity;
+    this.renderData.push({
+      x: fx,
+      y: fy,
+      z: fz,
+      index: faceIndex
+    });
+  }
+
   var index = this._index(cube.x, cube.y, cube.z);
-  this.sceneData[0][index] = this.sceneData[0][index] || [{ts: 0}];
-  this.sceneData[0][index][0] = cube;
-  this.sceneData[0].count++;
+
+  if (dist <= this.faceDistances[faceIndex]) {
+    this.faceIndices[faceIndex] = index;
+    this.faceDistances[faceIndex] = dist;
+  }
+
+  cube.index = index;
+
+  this.sceneData[index] = cube;
+  this.sceneDataLength++;
 }
 
-// Private Methods
 Cubes.prototype._index = function (x, y, z) {
   return this.gridSizeZ * this.gridSizeZ * z + this.gridSizeY * y + x + 1;
-}
-
-Cubes.prototype._addNode = function (parent, i, x, y, z) {
-  this._adds++;
-  var index = this._index(x, y, z);
-  this.sceneData[0][index] = this.sceneData[0][index] || [{ts: 0}];
-  this.sceneData[0][index][i] = parent;
-}
-
-Cubes.prototype._newTree = function () {
-
-  // this.diagonals.push({
-  //   x: 0,
-  //   y: 0,
-  //   z: 0,
-  //   tail: [];
-  // });
-
-  // Add additional nodes to scene tree
-  var index = null;
-  for (var z = 0, zz = this.gridSizeZ; z < zz; z++) {
-    for (var y = this.gridSizeY - 1, yy = 0; y >= yy; y--) {
-      for (var x = this.gridSizeX - 1, xx = 0; x >= xx; x--) {
-        index = this._index(x, y, z);
-        if (x + 1 < this.gridSizeX) this._addNode(index, 1, x + 1, y, z);
-        if (y + 1 < this.gridSizeY) this._addNode(index, 2, x, y + 1, z);
-        if (z - 1 >= 0) this._addNode(index, 3, x, y, z - 1);
-      }
-    }
-  }
 }
 
 if (Cubes.commonJS) {
