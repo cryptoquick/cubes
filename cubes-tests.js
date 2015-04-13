@@ -71,11 +71,11 @@ var current = 0;
 // The following implements a great deal of legacy code from nb07 in order to create a color swatch to match color indices from model strings.
 for (var z = 0; z < 32; z++) {
   for (var y = 0; y < 32; y++) {
-    for (var x = 0; x < 32; x++) {
+    for (var x = 32 - 1; x >= 0; x--) {
       color = {
-        r: (z + 1) * 8,
-        g: (y + 1) * 8,
-        b: (x + 1) * 8
+        r: z * 8,
+        g: y * 8,
+        b: 255 - x * 8
       };
 
       swatch.push(color);
@@ -121,4 +121,32 @@ Template.model.onRendered(function () {
   console.log(count, 'cubes rendered in', end - start, 'ms');
 
   return '';
+});
+
+var randomByte = function () {
+  return Math.random() * 256 | 0;
+};
+
+Template.experiment.onRendered(function () {
+  var iso = new Isomer(this.find('canvas'), {
+    scale: 35,
+    originY: 400
+  });
+
+  var add = function (x, y, z, i) {
+    setTimeout(function (x, y, z, iso) {
+      iso.add(
+        Isomer.Shape.Prism(
+          new Isomer.Point(x, y, z)
+        ),
+        new Isomer.Color(randomByte(), randomByte(), randomByte())
+      );
+    }, i * 100, x, y, z, iso);
+  }
+
+  // add(0, 0, 0, 2);
+  // add(0, 0, 1, 4);
+  // add(0, 0, 2, 6);
+
+
 });
