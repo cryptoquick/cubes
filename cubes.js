@@ -38,6 +38,8 @@ Cubes = function (canvasNode, config) {
     }  // 270
   ];
 
+  this.diagonals = [];
+
   this.iso = new this.Isomer(canvasNode, {
     scale: (config.scale || 10.0),
     originY: (config.originY || this.gridSizeZ * 2 * 10)
@@ -93,8 +95,8 @@ Cubes.prototype.renderScene = function () {
         gridY,
         1
       ),
-      new this.Color(200, 200, 200),
-      true
+      new this.Color(200, 200, 200)
+      // , true
     );
   }
 
@@ -197,9 +199,16 @@ Cubes.prototype._addNode = function (parent, i, x, y, z) {
 }
 
 Cubes.prototype._newTree = function () {
+
+  // this.diagonals.push({
+  //   x: 0,
+  //   y: 0,
+  //   z: 0,
+  //   tail: [];
+  // });
+
   // Add additional nodes to scene tree
   var index = null;
-
   for (var z = 0, zz = this.gridSizeZ; z < zz; z++) {
     for (var y = this.gridSizeY - 1, yy = 0; y >= yy; y--) {
       for (var x = this.gridSizeX - 1, xx = 0; x >= xx; x--) {

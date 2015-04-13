@@ -1,4 +1,4 @@
-var cubeSize = 32;
+var cubeSize = 5;
 
 Template.occlusion.onRendered(function () {
   var start = +new Date;
@@ -6,7 +6,7 @@ Template.occlusion.onRendered(function () {
     x: cubeSize,
     y: cubeSize,
     z: cubeSize,
-    slow: 10
+    slow: 100
   });
 
   for (var z = 0, zz = cubeSize; z < zz; z++) {
@@ -121,4 +121,30 @@ Template.model.onRendered(function () {
   console.log(count, 'cubes rendered in', end - start, 'ms');
 
   return '';
+});
+
+var randomByte = function () {
+  return Math.random() * 256 | 0;
+};
+
+Template.experiment.onRendered(function () {
+  var iso = new Isomer(this.find('canvas'), {
+    scale: 35,
+    originY: 400
+  });
+
+  var add = function (x, y, z, i) {
+    setTimeout(function (x, y, z, iso) {
+      iso.add(
+        Isomer.Shape.Prism(
+          new Isomer.Point(x, y, z)
+        ),
+        new Isomer.Color(randomByte(), randomByte(), randomByte())
+      );
+    }, i * 100, x, y, z, iso);
+  }
+
+  add(0, 0, 0, 2);
+  add(0, 0, 1, 4);
+  add(0, 0, 2, 6);
 });
