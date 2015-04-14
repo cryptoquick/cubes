@@ -1,6 +1,6 @@
 {
   "name": "cubes",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "An isometric graphics management library.",
   "main": "cubes.js",
   "scripts": {
