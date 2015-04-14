@@ -10,7 +10,7 @@ Package.onUse(function(api) {
   api.use('cryptoquick:isomer@0.2.5');
   api.versionsFrom('1.1.0.2');
   api.addFiles('cubes.js');
-  api.export('Cubes', 'client');
+  api.export('Cubes');
   api.imply('cryptoquick:isomer@0.2.5');
 });
 

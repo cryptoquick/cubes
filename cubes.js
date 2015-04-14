@@ -30,8 +30,15 @@ Cubes = function (canvasNode, config) {
 
   this.iso = new this.Isomer(canvasNode, {
     scale: (config.scale || 10.0),
-    originY: (config.originY || this.gridSizeZ * 2 * 10)
+    originY: (config.originY || this.gridSizeZ * 2 * 10),
+    lightPosition: new this.Isomer.Vector(
+      config.lightX || 3,
+      config.lightY || -5,
+      config.lightZ || 1
+    )
   });
+
+  this.iso.colorDifference = config.colorDifference || 0.10;
 
   this.planeXY = config.planeXY || true;
 
