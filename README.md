@@ -3,8 +3,12 @@
 Cubes is an isometric graphics management library. It uses [Isomer](https://github.com/jdan/isomer), but it's meant to offer higher level scene management.
 
 ## Current Support
-- Browserify
+
 - Meteor
+
+## Planned Support
+
+- Browserify
 - Full source
 - Minified distribution with sourcemap
 - Pull requests for other package managers are welcomed
