@@ -54,7 +54,16 @@ An example configuration, taken from the defaults:
     originY: null,
 
     // Toggles click detection for this instance of Cubes.
-    clickDetection: false
+    clickDetection: false,
+
+    // Determines how different the sides of each cube of the same color are in lightness.
+    colorDifference: 0.10,
+
+    // This is the position of the light source for lighting the scene. It's a directional light, so a larger number indicates the light is further away, but it is not a point light.
+    lightX: 3, lightY: -5, lightZ: 1,
+
+    // Do you want a base plan upon which to build upon? No? Set it to false, then.
+    planeXY: true
   });
 ```
 
