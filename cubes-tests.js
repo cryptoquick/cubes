@@ -112,41 +112,13 @@ Template.model.onRendered(function () {
 
   var count = cubes.renderScene()
 
-  // Tinytest.add('occlusion', function (test) {
-  //   test.equal(count, cubeSize * cubeSize + cubeSize * (cubeSize - 1) + (cubeSize - 1) * (cubeSize - 1));
-  // });
+  Tinytest.add('model: ' + this.data.name, function (test) {
+    test.equal(count < model.length, true);
+  });
 
   var end = +new Date;
 
-  console.log(count, 'cubes rendered in', end - start, 'ms');
+  console.log(count, 'cubes rendered in', end - start, 'ms, with', model.length - count, 'cubes not rendered');
 
   return '';
-});
-
-var randomByte = function () {
-  return Math.random() * 256 | 0;
-};
-
-Template.experiment.onRendered(function () {
-  var iso = new Isomer(this.find('canvas'), {
-    scale: 35,
-    originY: 400
-  });
-
-  var add = function (x, y, z, i) {
-    setTimeout(function (x, y, z, iso) {
-      iso.add(
-        Isomer.Shape.Prism(
-          new Isomer.Point(x, y, z)
-        ),
-        new Isomer.Color(randomByte(), randomByte(), randomByte())
-      );
-    }, i * 100, x, y, z, iso);
-  }
-
-  // add(0, 0, 0, 2);
-  // add(0, 0, 1, 4);
-  // add(0, 0, 2, 6);
-
-
 });
