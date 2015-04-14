@@ -30,6 +30,7 @@ Cubes = function (canvasNode, config) {
 
   this.iso = new this.Isomer(canvasNode, {
     scale: (config.scale || 10.0),
+    originX: (config.originX || null),
     originY: (config.originY || this.gridSizeZ * 2 * 10),
     lightPosition: new this.Isomer.Vector(
       config.lightX || 3,
