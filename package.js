@@ -7,11 +7,12 @@ Package.describe({
 });
 
 Package.onUse(function(api) {
-  api.use('cryptoquick:isomer@0.2.5');
+  // api.use('cryptoquick:isomer@0.2.5');
   api.versionsFrom('1.1.0.2');
+  api.addFiles('isomer.js');
   api.addFiles('cubes.js');
   api.export('Cubes');
-  api.imply('cryptoquick:isomer@0.2.5');
+  // api.imply('cryptoquick:isomer@0.2.5');
 });
 
 Package.onTest(function(api) {
