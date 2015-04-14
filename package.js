@@ -1,6 +1,6 @@
 Package.describe({
   name: 'cryptoquick:cubes',
-  version: '0.0.2',
+  version: '0.2.0',
   summary: 'An isometric graphics-rendering library.',
   git: 'https://github.com/cryptoquick/cubes',
   documentation: 'README.md'
