@@ -11,18 +11,23 @@ var example5 = "[[20,15,0,26624],[19,15,0,26624],[31,15,0,26624],[0,15,0,26624],
 
 models = [
 	{
+		name: 'maybe tree',
 		model: example1
 	},
 	{
+		name: 'double rainbow',
 		model: example2
 	},
 	{
+		name: 'alien fighter',
 		model: example3
 	},
 	{
+		name: 'unfinished pipe',
 		model: example4
 	},
 	{
+		name: 'escheresque pipes',
 		model: example5
 	}
 ];
