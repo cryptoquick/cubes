@@ -30,6 +30,7 @@ Cubes = function (canvasNode, config) {
 
   this.iso = new this.Isomer(canvasNode, {
     scale: (config.scale || 10.0),
+    originX: (config.originX || null),
     originY: (config.originY || this.gridSizeZ * 2 * 10),
     lightPosition: new this.Isomer.Vector(
       config.lightX || 3,
@@ -37,6 +38,13 @@ Cubes = function (canvasNode, config) {
       config.lightZ || 1
     )
   });
+
+  this.clickDetection = config.clickDetection || false;
+
+  if (this.clickDetection) {
+    // this.clickBuffer = new Int16Array(this.iso.canvas.width * this.iso.canvas.height);
+    this.clickBuffer = {};
+  }
 
   this.iso.colorDifference = config.colorDifference || 0.10;
 
@@ -109,7 +117,12 @@ Cubes.prototype.renderScene = function () {
     this.slowRender(renderQueue, this.slow);
   }
   else {
-    this.render(renderQueue);
+    if (this.clickDetection) {
+      this.render(renderQueue, this._renderClickBuffer);
+    }
+    else {
+      this.render(renderQueue);
+    }
   }
 
   // For next-generation Isomer.
@@ -129,20 +142,125 @@ Cubes.prototype._cubeSorter = function (a, b) {
   return 0;
 }
 
-Cubes.prototype.render = function (rq) {
-  setTimeout(function (that, rq) {
+Cubes.prototype._renderClickBuffer = function (that, shapeQueue) {
+  var width = that.iso.canvas.width;
+  var height = that.iso.canvas.height;
+  var shape = null;
+  var quad = null;
+  var point = null;
+  var id = null;
+  var points = null;
+
+  for (var sh = 0, shh = shapeQueue.length; sh < shh; sh += 2) {
+    shape = shapeQueue[sh];
+    id = shapeQueue[sh + 1];
+
+    for (var q = 0, qq = shape.length; q < qq; q++) {
+      quad = shape[q];
+      var points = [];
+
+      for (var p = 0, pp = quad.length; p < pp; p++) {
+        point = quad[p];
+        points.push(point.x, point.y);
+      }
+
+      that._fillQuad(that, points, id);
+    }
+  }
+}
+
+Cubes.prototype._fillQuad = function (that, points, id) {
+  that._rasterTri(that, {
+    x: points[0],
+    y: points[1]
+  }, {
+    x: points[2],
+    y: points[3]
+  }, {
+    x: points[4],
+    y: points[5]
+  }, id);
+
+  that._rasterTri(that, {
+    x: points[4],
+    y: points[5]
+  }, {
+    x: points[6],
+    y: points[7]
+  }, {
+    x: points[0],
+    y: points[1]
+  }, id);
+}
+
+// http://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
+Cubes.prototype._rasterTri = function (that, vt1, vt2, vt3, id) {
+  var maxX = Math.max(vt1.x, Math.max(vt2.x, vt3.x));
+  var minX = Math.min(vt1.x, Math.min(vt2.x, vt3.x));
+  var maxY = Math.max(vt1.y, Math.max(vt2.y, vt3.y));
+  var minY = Math.min(vt1.y, Math.min(vt2.y, vt3.y));
+
+  var vs1 = {
+    x: vt2.x - vt1.x,
+    y: vt2.y - vt1.y
+  };
+
+  var vs2 = {
+    x: vt3.x - vt1.x,
+    y: vt3.y - vt1.y
+  };
+
+  for (var x = minX; x <= maxX; x++) {
+    for (var y = minY; y <= maxY; y++) {
+      var q = {
+        x: x - vt1.x,
+        y: y - vt1.y
+      };
+
+      var s = that._crossProduct(q, vs2) / that._crossProduct(vs1, vs2);
+      var t = that._crossProduct(vs1, q) / that._crossProduct(vs1, vs2);
+
+      if ((s >= 0) && (t >= 0) && (s + t <= 1)) {
+        that._drawPixel(that, x, y, id);
+      }
+    }
+  }
+}
+
+Cubes.prototype._crossProduct = function (a, b) {
+  return a.x * b.y - a.y * b.x;
+}
+
+Cubes.prototype._drawPixel = function (that, x, y, id) {
+  var index = that._indexCanvas(Math.floor(x), Math.floor(y), that);
+  that.clickBuffer[index] = id;
+}
+
+Cubes.prototype.render = function (rq, cb) {
+  setTimeout(function (that, rq, cb) {
     var cube = null;
+    var shape = null;
+    var result = null;
+    if (cb) var shapeQueue = [];
     for (var j = 0, jj = rq.length; j < jj; j++) {
       cube = rq[j];
-      that.iso.add(
-        that.Shape.Prism(
-          new that.Point(cube.x, cube.y, cube.z)
-        ),
+
+      shape = that.Shape.Prism(
+        new that.Point(cube.x, cube.y, cube.z)
+      );
+
+      result = that.iso.add(
+        shape,
         cube.color ? that.isoColor(cube.color) : null
         // , true
       );
+
+      if (cb) shapeQueue.push(result, cube.index);
     }
-  }, 0, this, rq);
+    if (cb) {
+      cb(that, shapeQueue);
+    };
+  }, 0, this, rq, cb);
 }
 
 Cubes.prototype.slowRender = function (rq, speed) {
@@ -168,6 +286,7 @@ Cubes.prototype.insert = function (cube) {
   var fy = cube.y - dist;
   var fz = this.gridSizeZ - cube.z - dist;
 
+  var index = this._index(cube.x, cube.y, cube.z);
   var faceIndex = this._index(fx, fy, fz);
 
   if (!this.faceIndices[faceIndex]) {
@@ -180,8 +299,6 @@ Cubes.prototype.insert = function (cube) {
     });
   }
 
-  var index = this._index(cube.x, cube.y, cube.z);
-
   if (dist <= this.faceDistances[faceIndex]) {
     this.faceIndices[faceIndex] = index;
     this.faceDistances[faceIndex] = dist;
@@ -193,8 +310,19 @@ Cubes.prototype.insert = function (cube) {
   this.sceneDataLength++;
 }
 
+Cubes.prototype.click = function (x, y) {
+  var canvasIndex = this._indexCanvas(x, y);
+  var index = this.clickBuffer[canvasIndex];
+  return this.sceneData[index];
+}
+
 Cubes.prototype._index = function (x, y, z) {
   return this.gridSizeZ * this.gridSizeZ * z + this.gridSizeY * y + x + 1;
+}
+
+Cubes.prototype._indexCanvas = function (x, y, that) {
+  that = this || that;
+  return that.iso.canvas.height * y + x;
 }
 
 if (Cubes.commonJS) {

@@ -1,5 +1,6 @@
 var cubeSize = 32;
 
+// occlusion
 Template.occlusion.onRendered(function () {
   var start = +new Date;
   this.cubes = new Cubes(this.find('canvas'), {
@@ -33,6 +34,7 @@ Template.occlusion.onRendered(function () {
   console.log(count, 'cubes rendered in', end - start, 'ms');
 });
 
+// reverse
 Template.reverse.onRendered(function () {
   var start = +new Date;
   this.cubes = new Cubes(this.find('canvas'), {
@@ -89,6 +91,7 @@ Template.models.helpers({
   }
 });
 
+// model
 Template.model.onRendered(function () {
   var model = JSON.parse(this.data.model);
 
@@ -122,3 +125,85 @@ Template.model.onRendered(function () {
 
   return '';
 });
+
+// click
+Template.click.onRendered(function () {
+  var clickCube = 32;
+  var start = +new Date;
+  var cubes = this.cubes = new Cubes(this.find('canvas'), {
+    x: clickCube,
+    y: clickCube,
+    z: clickCube,
+    clickDetection: true
+  });
+
+  for (var z = 0, zz = clickCube; z < zz; z++) {
+    for (var y = 0, yy = clickCube; y < yy; y++) {
+      for (var x = 0, xx = clickCube; x < xx; x++) {
+        this.cubes.insert({
+          x: x,
+          y: y,
+          z: z,
+          color: this.cubes.randomColor().toHex()
+        });
+      }
+    }
+  }
+
+  var count = this.cubes.renderScene()
+
+  // Values based on 32x32x32 cube at 800x800.
+  Tinytest.add('click - top', function (test) {
+    var cube = cubes.click(400, 6);
+    test.equal(cube.x, 31);
+    test.equal(cube.y, 31);
+    test.equal(cube.z, 31);
+  });
+
+  Tinytest.add('click - bottom', function (test) {
+    var cube = cubes.click(400, 635);
+    test.equal(cube.x, 0);
+    test.equal(cube.y, 0);
+    test.equal(cube.z, 0);
+  });
+
+  Tinytest.add('click - upper left', function (test) {
+    var cube = cubes.click(128, 165);
+    test.equal(cube.x, 0);
+    test.equal(cube.y, 31);
+    test.equal(cube.z, 31);
+  });
+
+  Tinytest.add('click - upper right', function (test) {
+    var cube = cubes.click(675, 165);
+    test.equal(cube.x, 31);
+    test.equal(cube.y, 0);
+    test.equal(cube.z, 31);
+  });
+
+  Tinytest.add('click - lower left', function (test) {
+    var cube = cubes.click(128, 480);
+    test.equal(cube.x, 0);
+    test.equal(cube.y, 31);
+    test.equal(cube.z, 0);
+  });
+
+  Tinytest.add('click - lower right', function (test) {
+    var cube = cubes.click(675, 480);
+    test.equal(cube.x, 31);
+    test.equal(cube.y, 0);
+    test.equal(cube.z, 0);
+  });
+
+  var end = +new Date;
+
+  console.log(count, 'cubes rendered in', end - start, 'ms');
+});
+
+Template.click.events({
+  'click canvas': function (evt, tpl) {
+    console.log(evt.offsetX, evt.offsetY);
+    var cube = tpl.cubes.click(evt.offsetX, evt.offsetY);
+    console.log(cube.x, cube.y, cube.z);
+  }
+})
