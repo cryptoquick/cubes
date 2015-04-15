@@ -117,7 +117,7 @@ Cubes.prototype.renderScene = function () {
     this.slowRender(renderQueue, this.slow);
   }
   else {
-    this.render(renderQueue);
+    setTimeout(this.render.bind(this), 0, renderQueue);
   }
 
   // For next-generation Isomer.
@@ -137,9 +137,9 @@ Cubes.prototype._cubeSorter = function (a, b) {
   return 0;
 }
 
-Cubes.prototype._renderClickBuffer = function (that, shapeQueue) {
-  var width = that.iso.canvas.width;
-  var height = that.iso.canvas.height;
+Cubes.prototype._renderClickBuffer = function (shapeQueue) {
+  var width = this.iso.canvas.width;
+  var height = this.iso.canvas.height;
   var shape = null;
   var quad = null;
   var point = null;
@@ -159,13 +159,13 @@ Cubes.prototype._renderClickBuffer = function (that, shapeQueue) {
         points.push(point.x, point.y);
       }
 
-      that._fillQuad(that, points, id);
+      this._fillQuad(points, id);
     }
   }
 }
 
-Cubes.prototype._fillQuad = function (that, points, id) {
-  that._rasterTri(that, {
+Cubes.prototype._fillQuad = function (points, id) {
+  this._rasterTri({
     x: points[0],
     y: points[1]
   }, {
@@ -176,7 +176,7 @@ Cubes.prototype._fillQuad = function (that, points, id) {
     y: points[5]
   }, id);
 
-  that._rasterTri(that, {
+  this._rasterTri({
     x: points[4],
     y: points[5]
   }, {
@@ -189,7 +189,7 @@ Cubes.prototype._fillQuad = function (that, points, id) {
 }
 
 // http://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
-Cubes.prototype._rasterTri = function (that, vt1, vt2, vt3, id) {
+Cubes.prototype._rasterTri = function (vt1, vt2, vt3, id) {
   var maxX = Math.max(vt1.x, Math.max(vt2.x, vt3.x));
   var minX = Math.min(vt1.x, Math.min(vt2.x, vt3.x));
   var maxY = Math.max(vt1.y, Math.max(vt2.y, vt3.y));
@@ -212,11 +212,11 @@ Cubes.prototype._rasterTri = function (that, vt1, vt2, vt3, id) {
         y: y - vt1.y
       };
 
-      var s = that._crossProduct(q, vs2) / that._crossProduct(vs1, vs2);
-      var t = that._crossProduct(vs1, q) / that._crossProduct(vs1, vs2);
+      var s = this._crossProduct(q, vs2) / this._crossProduct(vs1, vs2);
+      var t = this._crossProduct(vs1, q) / this._crossProduct(vs1, vs2);
 
       if ((s >= 0) && (t >= 0) && (s + t <= 1)) {
-        that._drawPixel(that, x, y, id);
+        this._drawPixel(x, y, id);
       }
     }
   }
@@ -226,53 +226,51 @@ Cubes.prototype._crossProduct = function (a, b) {
   return a.x * b.y - a.y * b.x;
 }
 
-Cubes.prototype._drawPixel = function (that, x, y, id) {
-  var index = that._indexCanvas(Math.floor(x), Math.floor(y), that);
-  that.clickBuffer[index] = id;
+Cubes.prototype._drawPixel = function (x, y, id) {
+  var index = this._indexCanvas(Math.floor(x), Math.floor(y));
+  this.clickBuffer[index] = id;
 }
 
 Cubes.prototype.render = function (rq) {
-  setTimeout(function (that, rq) {
-    var cube = null;
-    var shape = null;
-    var result = null;
-    var shapeQueue = [];
+  var cube = null;
+  var shape = null;
+  var result = null;
+  var shapeQueue = [];
 
-    for (var j = 0, jj = rq.length; j < jj; j++) {
-      cube = rq[j];
+  for (var j = 0, jj = rq.length; j < jj; j++) {
+    cube = rq[j];
 
-      shape = that.Shape.Prism(
-        new that.Point(cube.x, cube.y, cube.z)
-      );
+    shape = this.Shape.Prism(
+      new this.Point(cube.x, cube.y, cube.z)
+    );
 
-      result = that.iso.add(
-        shape,
-        cube.color ? that.isoColor(cube.color) : null
-        // , true
-      );
+    result = this.iso.add(
+      shape,
+      cube.color ? this.isoColor(cube.color) : null
+      // , true
+    );
 
-      if (that.clickDetection) shapeQueue.push(result, cube.index);
-    }
+    if (this.clickDetection) shapeQueue.push(result, cube.index);
+  }
 
-    if (shapeQueue.length) {
-      that._renderClickBuffer(that, shapeQueue);
-    };
-  }, 0, this, rq);
+  if (shapeQueue.length) {
+    this._renderClickBuffer(shapeQueue);
+  };
 }
 
 Cubes.prototype.slowRender = function (rq, speed) {
-  var cube = null;
   for (var j = 0, jj = rq.length; j < jj; j++) {
-    setTimeout(function (that, rq, j) {
+    setTimeout(function (rq, j) {
+      var cube = null;
       cube = rq[j];
-      that.iso.add(
-        that.Shape.Prism(
-          new that.Point(cube.x, cube.y, cube.z)
+      this.iso.add(
+        this.Shape.Prism(
+          new this.Point(cube.x, cube.y, cube.z)
         ),
-        cube.color ? that.isoColor(cube.color) : null
+        cube.color ? this.isoColor(cube.color) : null
         // , true
       );
-    }, j * speed, this, rq, j);
+    }.bind(this), j * speed, rq, j);
   }
 }
 
@@ -317,9 +315,8 @@ Cubes.prototype._index = function (x, y, z) {
   return this.gridSizeZ * this.gridSizeZ * z + this.gridSizeY * y + x + 1;
 }
 
-Cubes.prototype._indexCanvas = function (x, y, that) {
-  that = this || that;
-  return that.iso.canvas.height * y + x;
+Cubes.prototype._indexCanvas = function (x, y) {
+  return this.iso.canvas.height * y + x;
 }
 
 if (Cubes.commonJS) {

@@ -202,8 +202,8 @@ Template.click.onRendered(function () {
 
 Template.click.events({
   'click canvas': function (evt, tpl) {
-    console.log(evt.offsetX, evt.offsetY);
+    console.log('px', evt.offsetX, 'py', evt.offsetY);
     var cube = tpl.cubes.click(evt.offsetX, evt.offsetY);
-    console.log(cube.x, cube.y, cube.z);
+    console.log('x', cube.x, 'y', cube.y, 'z', cube.z);
   }
 })
