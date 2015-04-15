@@ -117,12 +117,7 @@ Cubes.prototype.renderScene = function () {
     this.slowRender(renderQueue, this.slow);
   }
   else {
-    if (this.clickDetection) {
-      this.render(renderQueue, this._renderClickBuffer);
-    }
-    else {
-      this.render(renderQueue);
-    }
+    this.render(renderQueue);
   }
 
   // For next-generation Isomer.
@@ -236,12 +231,13 @@ Cubes.prototype._drawPixel = function (that, x, y, id) {
   that.clickBuffer[index] = id;
 }
 
-Cubes.prototype.render = function (rq, cb) {
-  setTimeout(function (that, rq, cb) {
+Cubes.prototype.render = function (rq) {
+  setTimeout(function (that, rq) {
     var cube = null;
     var shape = null;
     var result = null;
-    if (cb) var shapeQueue = [];
+    var shapeQueue = [];
+
     for (var j = 0, jj = rq.length; j < jj; j++) {
       cube = rq[j];
 
@@ -255,12 +251,13 @@ Cubes.prototype.render = function (rq, cb) {
         // , true
       );
 
-      if (cb) shapeQueue.push(result, cube.index);
+      if (that.clickDetection) shapeQueue.push(result, cube.index);
     }
-    if (cb) {
-      cb(that, shapeQueue);
+
+    if (shapeQueue.length) {
+      that._renderClickBuffer(that, shapeQueue);
     };
-  }, 0, this, rq, cb);
+  }, 0, this, rq);
 }
 
 Cubes.prototype.slowRender = function (rq, speed) {
