@@ -4,11 +4,11 @@ Cubes is an isometric graphics management library. It uses [Isomer](https://gith
 
 ## Current Support
 
-- Meteor
+- Frontend JS
+- Browserify
 
 ## Planned Support
 
-- Browserify
 - Full source
 - Minified distribution with sourcemap
 - Pull requests for other package managers are welcomed
@@ -31,7 +31,10 @@ Cubes is an isometric graphics management library. It uses [Isomer](https://gith
   - Isometric color picker partial
   - Basic editor partial
 - 0.5
+  - Transparent cubes
   - Backend rendering
+- 0.6
+  - Large scene support
 
 ## Configuration
 

@@ -1,10 +1,12 @@
 {
   "name": "cubes",
-  "version": "0.2.0",
-  "description": "An isometric graphics management library.",
+  "version": "0.2.1",
+  "description": "A full-featured JavaScript canvas isometric graphics library",
   "main": "cubes.js",
   "scripts": {
-    "test": "meteor test-packages ./"
+    "test": "ava",
+    "start": "node --harmony dev",
+    "dev": "nodemon --harmony --ignore client,dist"
   },
   "repository": {
     "type": "git",
@@ -16,7 +18,8 @@
     "url": "https://github.com/cryptoquick/cubes/issues"
   },
   "homepage": "https://github.com/cryptoquick/cubes",
-  "dependencies": {
-    "isomer": "^0.2.5"
+  "devDependencies": {
+    "ava": "^0.19.1",
+    "budo": "^10.0.3"
   }
 }
