@@ -6,7 +6,7 @@
   "scripts": {
     "test": "ava",
     "start": "node --harmony dev",
-    "dev": "nodemon --harmony --ignore client,dist"
+    "dev": "nodemon --harmony dev"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,9 @@
   "homepage": "https://github.com/cryptoquick/cubes",
   "devDependencies": {
     "ava": "^0.19.1",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
+    "babel-polyfill": "^6.23.0",
+    "babelify": "^7.3.0",
     "budo": "^10.0.3"
   }
 }
