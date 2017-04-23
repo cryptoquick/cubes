@@ -1,18 +1,26 @@
 const budo = require('budo')
 const babelify = require('babelify')
 
-budo('./cubes-new', {
+budo('./src/index', {
   live: true,
   port: 9000,
   browserify: {
     transform: babelify.configure({
-      plugins: ['transform-es2015-modules-commonjs'],
+      presets: [
+        [
+          'env',
+          {
+            targets: {
+              chrome: 58,
+            },
+          },
+        ],
+      ],
     }),
   },
 })
   .on('connect', event => {
     console.log('Client running on %s', event.uri)
-    console.log('LiveReload running on port %s', event.livePort)
   })
   .on('update', buffer => {
     console.log('bundle - %d bytes', buffer.length)

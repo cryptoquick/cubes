@@ -20,9 +20,27 @@
   "homepage": "https://github.com/cryptoquick/cubes",
   "devDependencies": {
     "ava": "^0.19.1",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
     "babel-polyfill": "^6.23.0",
+    "babel-preset-env": "^1.4.0",
     "babelify": "^7.3.0",
     "budo": "^10.0.3"
+  },
+  "ava": {
+    "babel": {
+      "babelrc": true,
+      "presets": [
+        [
+          "env",
+          {
+            "targets": {
+              "node": "current"
+            }
+          }
+        ]
+      ]
+    },
+    "require": [
+      "babel-core/register"
+    ]
   }
 }
