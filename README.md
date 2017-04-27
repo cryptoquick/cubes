@@ -6,6 +6,7 @@ Cubes is an isometric graphics management library. It uses [Isomer](https://gith
 
 - Frontend JS
 - Browserify
+- Node
 
 ## Planned Support
 
@@ -28,8 +29,8 @@ Cubes is an isometric graphics management library. It uses [Isomer](https://gith
   - 3-axis slicing
   - 4-angle rotation
 - 0.4
-  - Isometric color picker partial
-  - Basic editor partial
+  - Isometric color picker component
+  - Basic editor component
 - 0.5
   - Transparent cubes
   - Backend rendering
@@ -124,6 +125,15 @@ Some additional useful utility methods are available.
 ### Random Colors
 
 `cubes.randomColor().toHex()`
+
+## Formats
+
+### Chunks
+Chunks are equal in length to their *size*, cubed. The index of a cube within a chunk is calculated with this formula:
+
+`size * size * z + size * y + x + 1`
+
+A cube index within a chunk is also referred to as its id.
 
 ## Testing
 
